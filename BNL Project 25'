@@ -1,0 +1,90 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Example UV index data from September to April (mocked values)
+uv_data = {
+    'Month': ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
+    'Average_UV_Index': [6, 5, 3, 2, 2, 3, 5, 7]
+}
+
+# Create DataFrame
+df = pd.DataFrame(uv_data)
+
+# Display Fitzpatrick Skin Types
+print("Fitzpatrick Skin Type Scale (Choose I–VI):")
+print("""
+I  - Very fair skin, always burns, never tans (e.g., red or blonde hair, freckles)
+II - Fair skin, usually burns, tans minimally
+III - Medium skin, sometimes mild burn, tans gradually
+IV - Olive or light brown skin, rarely burns, tans easily
+V  - Brown skin, very rarely burns, tans very easily
+VI - Dark brown or black skin, never burns, deeply pigmented
+""")
+
+# Ask user for location, skin type, and activity
+location = input("Enter your location (city): ")
+skin_type = input("Enter your skin type (I–VI): ").strip().upper()
+activity = input("Enter your typical outdoor activity (e.g., jogging, walking, biking): ")
+
+# Risk levels based on UV index
+def get_uv_risk(index):
+    if index <= 2:
+        return "Low Risk"
+    elif 3 <= index <= 5:
+        return "Moderate Risk"
+    elif 6 <= index <= 7:
+        return "High Risk"
+    elif 8 <= index <= 10:
+        return "Very High Risk"
+    else:
+        return "Extreme Risk"
+
+# Sun safety recommendations
+def protection_advice(index, skin_type):
+    advice = []
+    if index >= 3:
+        advice.append("Apply broad-spectrum SPF 30+ sunscreen.")
+        advice.append("Wear sunglasses and a wide-brimmed hat.")
+        if skin_type in ['I', 'II']:
+            advice.append("Limit sun exposure from 10am to 4pm.")
+            advice.append("Wear long sleeves and UV-protective clothing.")
+        else:
+            advice.append("Reapply sunscreen every 2 hours if outdoors.")
+    else:
+        advice.append("Minimal protection needed, but sunscreen is still recommended.")
+    return advice
+
+# Display UV index, risk level, and advice
+print(f"\n🌤️ Weather + UV Report for {location}")
+print("-" * 45)
+for i, row in df.iterrows():
+    month = row['Month']
+    index = row['Average_UV_Index']
+    risk = get_uv_risk(index)
+    print(f"{month}: UV Index = {index} → {risk}")
+
+# Provide helpful link
+print("\n🔗 For live weather and UV index, visit: https://www.accuweather.com\n")
+
+# Show personalized protection advice
+print("\n🛡️ Personalized Sun Protection Advice:")
+for i, row in df.iterrows():
+    index = row['Average_UV_Index']
+    tips = protection_advice(index, skin_type)
+    print(f"\n{row['Month']} Advice:")
+    for tip in tips:
+        print(f"- {tip}")
+
+# Plotting UV Index Trends
+plt.figure(figsize=(10, 6))
+plt.plot(df['Month'], df['Average_UV_Index'], marker='o', color='purple', linewidth=2)
+plt.title(f'UV Index Trend (Sept–April) - {location}')
+plt.xlabel('Month')
+plt.ylabel('Average UV Index')
+plt.grid(True)
+plt.ylim(0, 11)
+plt.axhline(y=3, color='green', linestyle='--', label='Moderate Risk Threshold')
+plt.axhline(y=6, color='red', linestyle='--', label='High Risk Threshold')
+plt.legend()
+plt.tight_layout()
+plt.show()
